@@ -1,7 +1,7 @@
 # Dual-Channel DMA Controller (Verilog)
 This project implements a dual-channel Direct Memory Access (DMA) controller using Verilog. Each channel can independently read data from a source memory and write it to a destination address. The system uses Finite State Machines (FSMs) to manage transfers and signal completion.
 
-Features
+# Features
 - Two independent DMA channels (channel1, channel2)
 - 8-bit addressing with 16-bit data transfer
 - Configurable source and destination base addresses
