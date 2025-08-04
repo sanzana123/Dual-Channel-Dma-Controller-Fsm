@@ -132,134 +132,131 @@ end
 endmodule 
 
 
+module testbench_DMA();
 
+	reg clk = 0;
+	reg reset = 0;
+	
+	//Channel 1
+	reg start1; 
+	wire done1; 
+	reg [7:0] length1, src_base1, dst_base1;
+	wire [7:0] src_addr1, dst_addr1; 
+	reg [15:0] mem_in_data1;
+	wire [15:0] mem_out_1; 
+	wire wr_en1;
+	
+	//Channel 2
+	reg start2;
+	wire done2; 
+	reg [7:0] length2, src_base2, dst_base2;
+	wire [7:0] src_addr2, dst_addr2; 
+	reg [15:0] mem_in_data2;
+	wire [15:0] mem_out_2; 
+	wire wr_en2;
 
-
-// module testbench_DMA();
-
-// 	reg clk = 0;
-// 	reg reset = 0;
+    //Memory Simulating
 	
-// 	//Channel 1
-// 	reg start1; 
-// 	wire done1; 
-// 	reg [7:0] length1, src_base1, dst_base1;
-// 	wire [7:0] src_addr1, dst_addr1; 
-// 	reg [15:0] mem_in_data1;
-// 	wire [15:0] mem_out_1; 
-// 	wire wr_en1;
+	reg [15:0] mem [0:255];
 	
-// 	//Channel 2
-// 	reg start2;
-// 	wire done2; 
-// 	reg [7:0] length2, src_base2, dst_base2;
-// 	wire [7:0] src_addr2, dst_addr2; 
-// 	reg [15:0] mem_in_data2;
-// 	wire [15:0] mem_out_2; 
-// 	wire wr_en2;
-
-//     //Memory Simulating
-	
-// 	reg [15:0] mem [0:255];
-	
-// 	// instantiation of DMA 2 channels
-// 	DMA_2ch DMA(
-// 		.clk(clk),
-// 		.reset(reset),
+	// instantiation of DMA 2 channels
+	DMA_2ch DMA(
+		.clk(clk),
+		.reset(reset),
 		
-// 		//For channel 1
-// 		.start1(start1),
-// 		.done1(done1),
-// 		.length1(length1),
-// 		.src_base1(src_base1),
-// 		.dst_base1(dst_base1),
-// 		.src_addr1(src_addr1),
-// 		.dst_addr1(dst_addr1),
-// 		.mem_in_data1(mem_in_data1),
-// 		.mem_out_data1(mem_out_1),
-// 		.wr_en1(wr_en1),
+		//For channel 1
+		.start1(start1),
+		.done1(done1),
+		.length1(length1),
+		.src_base1(src_base1),
+		.dst_base1(dst_base1),
+		.src_addr1(src_addr1),
+		.dst_addr1(dst_addr1),
+		.mem_in_data1(mem_in_data1),
+		.mem_out_data1(mem_out_1),
+		.wr_en1(wr_en1),
 		
-// 		//For channel 2
-// 		.start2(start2),
-// 		.done2(done2),
-// 		.length2(length2),
-// 		.src_base2(src_base2),
-// 		.dst_base2(dst_base2),
-// 		.src_addr2(src_addr2),
-// 		.dst_addr2(dst_addr2),
-// 		.mem_in_data2(mem_in_data2),
-// 		.mem_out_data2(mem_out_2),
-// 		.wr_en2(wr_en2)
+		//For channel 2
+		.start2(start2),
+		.done2(done2),
+		.length2(length2),
+		.src_base2(src_base2),
+		.dst_base2(dst_base2),
+		.src_addr2(src_addr2),
+		.dst_addr2(dst_addr2),
+		.mem_in_data2(mem_in_data2),
+		.mem_out_data2(mem_out_2),
+		.wr_en2(wr_en2)
 	
-// 	);
+	);
 	
 	
 	
-// 	//Making a 10 cycle clk
-// 	always #5 clk = ~clk;
+	//Making a 10 cycle clk
+	always #5 clk = ~clk;
 	
-// 	//assign mem_in data (READING from the source) 
-// 	always @(*) begin
-// 		mem_in_data1 = mem[src_addr1];
-// 		mem_in_data2 = mem[src_addr2];
-// 	end
+	//assign mem_in data (READING from the source) 
+	always @(*) begin
+		mem_in_data1 = mem[src_addr1];
+		mem_in_data2 = mem[src_addr2];
+	end
 	
-// 	//write to destination each time enable happens (WRTING to destiniation)
-// 	always @(posedge clk) begin
-//         if (wr_en1)
-//             mem[dst_addr1] <= mem_out_1;
-//         if (wr_en2)
-//             mem[dst_addr2] <= mem_out_2;
-//     end
+	//write to destination each time enable happens (WRTING to destiniation)
+	always @(posedge clk) begin
+        if (wr_en1)
+            mem[dst_addr1] <= mem_out_1;
+        if (wr_en2)
+            mem[dst_addr2] <= mem_out_2;
+    end
 	
-// 	//Testing phase
-// 	integer i;
-// 	initial begin
-// 		$display ("Starting DMA !! ...");
+	//Testing phase
+	integer i;
+	initial begin
+		$display ("Starting DMA !! ...");
 		
-// 		//initialize inputs
-// 		reset = 1;
-// 		start1 = 0; start2 = 0;
-// 		length1 = 0; length2 = 0;
+		//initialize inputs
+		reset = 1;
+		start1 = 0; start2 = 0;
+		length1 = 0; length2 = 0;
 		
-// 		#20 reset = 0;	//release reset after 2 cycle
+		#20 reset = 0;	//release reset after 2 cycle
 		
-// 		//init test memory data
-//         for (i = 0; i < 256; i = i + 1) begin
-//             mem[i] = 0;
-//             if (i >= 10 && i < 18)  //hard code for rn
-//                 mem[i] = 1000 + i;
-//             if (i >= 40 && i < 48)
-//                 mem[i] = 2000 + i;
-//         end
-		
-		
-// 		//Random addresses for no reasons why not !!! 
-// 		src_base1 = 8'd10;
-//         dst_base1 = 8'd100;
-//         src_base2 = 8'd40;
-//         dst_base2 = 8'd200;
-		
-// 		length1 = 8; length2 = 8;
-		
-// 		// Start 2 channels
-// 		start1 = 1; start2 = 1;
-// 		#10;	// release start
-// 		start1 = 0; start2 = 0;
+		//init test memory data
+        for (i = 0; i < 256; i = i + 1) begin
+            mem[i] = 0;
+            if (i >= 10 && i < 18)  //hard code for rn
+                mem[i] = 1000 + i;
+            if (i >= 40 && i < 48)
+                mem[i] = 2000 + i;
+        end
 		
 		
-// 		wait(done1 && done2);
-// 		$display ("Processes Completed");
+		//Random addresses for no reasons why not !!! 
+		src_base1 = 8'd10;
+        dst_base1 = 8'd100;
+        src_base2 = 8'd40;
+        dst_base2 = 8'd200;
+		
+		length1 = 8; length2 = 8;
+		
+		// Start 2 channels
+		start1 = 1; start2 = 1;
+		#10;	// release start
+		start1 = 0; start2 = 0;
 		
 		
-// 		//verify data transfer success
-// 		$display("\n=========After Transfering =======");
-// 		for (i = 0; i < 256; i = i + 1) begin
-// 			$display("mem[%0d] = %0d", i, mem[i]);
-// 		end
+		wait(done1 && done2);
+		$display ("Processes Completed");
+		
+		
+		//verify data transfer success
+		$display("\n=========After Transfering =======");
+		for (i = 0; i < 256; i = i + 1) begin
+			$display("mem[%0d] = %0d", i, mem[i]);
+		end
 		
 		
 				
-// 	end
+	end
 
-// endmodule
+endmodule
